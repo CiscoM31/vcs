@@ -3,6 +3,7 @@ package vcs
 import (
 	"bytes"
 	"encoding/xml"
+  "fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -70,7 +71,8 @@ func (s GitRepo) Vcs() Type {
 
 // Get is used to perform an initial clone of a repository.
 func (s *GitRepo) Get() error {
-	out, err := s.run("git", "clone", "--recursive", s.Remote(), s.LocalPath())
+  c1 := []string{"git", "clone", "--recursive", s.Remote(), s.LocalPath()}
+	out, err := s.run(c1[0], c1[1:]...)
 
 	// There are some windows cases where Git cannot create the parent directory,
 	// if it does not already exist, to the location it's trying to create the
@@ -83,16 +85,16 @@ func (s *GitRepo) Get() error {
 			if err != nil {
 				return NewLocalError("Unable to create directory", err, "")
 			}
-
-			out, err = s.run("git", "clone", s.Remote(), s.LocalPath())
+      c2 := []string{"git", "clone", s.Remote(), s.LocalPath()}
+			out, err = s.run(c2[0], c2[1:]...)
 			if err != nil {
-				return NewRemoteError("Unable to get repository", err, string(out))
+				return NewRemoteError(fmt.Sprintf("Unable to get repository. Command: %v", c2), err, string(out))
 			}
 			return err
 		}
 
 	} else if err != nil {
-		return NewRemoteError("Unable to get repository", err, string(out))
+		return NewRemoteError(fmt.Sprintf("Unable to get repository. Command: %v", c1), err, string(out))
 	}
 
 	return nil
