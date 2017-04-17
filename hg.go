@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"encoding/xml"
+  "fmt"
 	"os"
 	"os/exec"
 	"regexp"
@@ -70,9 +71,10 @@ func (s HgRepo) Vcs() Type {
 
 // Get is used to perform an initial clone of a repository.
 func (s *HgRepo) Get() error {
-	out, err := s.run("hg", "clone", s.Remote(), s.LocalPath())
+  c := []string{"hg", "clone", s.Remote(), s.LocalPath()}
+	out, err := s.run(c[0], c[1:]...)
 	if err != nil {
-		return NewRemoteError("Unable to get repository", err, string(out))
+		return NewRemoteError(fmt.Sprintf("Unable to get repository. Command: %v", c), err, string(out))
 	}
 	return nil
 }

@@ -80,9 +80,10 @@ func (s *SvnRepo) Get() error {
 	} else if runtime.GOOS == "windows" && filepath.VolumeName(remote) != "" {
 		remote = "file:///" + remote
 	}
-	out, err := s.run("svn", "checkout", remote, s.LocalPath())
+  c := []string{"svn", "checkout", remote, s.LocalPath()}
+	out, err := s.run(c[0], c[1:]...)
 	if err != nil {
-		return NewRemoteError("Unable to get repository", err, string(out))
+		return NewRemoteError(fmt.Sprintf("Unable to get repository. Command: %v", c), err, string(out))
 	}
 	return nil
 }

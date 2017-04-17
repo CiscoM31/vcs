@@ -80,9 +80,10 @@ func (s *BzrRepo) Get() error {
 		}
 	}
 
-	out, err := s.run("bzr", "branch", s.Remote(), s.LocalPath())
+  c := []string{"bzr", "branch", s.Remote(), s.LocalPath()}
+	out, err := s.run(c[0], c[1:]...)
 	if err != nil {
-		return NewRemoteError("Unable to get repository", err, string(out))
+		return NewRemoteError(fmt.Sprintf("Unable to get repository. Command: %v", c), err, string(out))
 	}
 
 	return nil
